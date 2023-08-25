@@ -1,6 +1,8 @@
 package com.github.hakobyanrob.result;
 
-public record CRUDManagerResult(boolean successful, String error) {
+import java.io.File;
+
+public record CRUDManagerResult(boolean successful, String error, File file) {
 
     public boolean isSuccessful() {
         return successful;
@@ -8,5 +10,9 @@ public record CRUDManagerResult(boolean successful, String error) {
 
     public String getError() {
         return error;
+    }
+
+    public File getFile() {
+        return file;
     }
 }
