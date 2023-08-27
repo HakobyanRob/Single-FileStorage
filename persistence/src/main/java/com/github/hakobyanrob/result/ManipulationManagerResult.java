@@ -2,7 +2,7 @@ package com.github.hakobyanrob.result;
 
 import java.io.File;
 
-public record CRUDManagerResult(boolean successful, String error, File file) {
+public record ManipulationManagerResult(boolean successful, String error, File file) {
 
     public boolean isSuccessful() {
         return successful;

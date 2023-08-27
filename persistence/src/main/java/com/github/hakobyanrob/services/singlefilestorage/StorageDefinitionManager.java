@@ -3,18 +3,17 @@ package com.github.hakobyanrob.services.singlefilestorage;
 import com.github.hakobyanrob.result.StorageManagerResult;
 
 /**
- * The StorageManager interface defines methods for managing storage operations.
+ * The StorageDefinitionManager interface defines methods for managing storage operations.
  * It provides functionality to create and delete storage resources.
  */
-public interface StorageManager {
+public interface StorageDefinitionManager {
 
     /**
-     * Creates a new storage at the specified file path.
+     * Creates a new storage at the file path specified in storage.properties.
      *
-     * @param filePath The path where the storage should be created.
      * @return A StorageManagerResult indicating the result of the operation.
      */
-    StorageManagerResult createStorage(String filePath);
+    StorageManagerResult createStorage();
 
     /**
      * Deletes the storage.

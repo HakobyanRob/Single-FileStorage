@@ -1,0 +1,16 @@
+{
+  "name": "John Doe",
+  "age": 30,
+  "isStudent": false,
+  "address": {
+    "street": "123 Main St",
+    "city": "Exampleville",
+    "country": "Wonderland"
+  },
+  "languages": ["English", "French", "Spanish"],
+  "grades": {
+    "math": 95,
+    "science": 85,
+    "history": 78
+  }
+}

@@ -5,16 +5,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class SingleFileStorageDeletionTest {
-    private final StorageManager singleFileStorageManager = new SingleFileStorageManager();
+public class SingleFileStorageDeleteTest {
+    private final StorageDefinitionManager singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager("testFilePath");
 
     @Test
     void testDeleteSingleFileStorage_Success() {
-        String filePath = "testFilePath";
+        singleFileStorageDefinitionManager.createStorage();
 
-        singleFileStorageManager.createStorage(filePath);
-
-        StorageManagerResult storageCreationResult = singleFileStorageManager.deleteStorage();
+        StorageManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
 
         Assertions.assertTrue(storageCreationResult.isSuccessful());
         Assertions.assertNull(storageCreationResult.getError());
@@ -22,7 +20,7 @@ public class SingleFileStorageDeletionTest {
 
     @Test
     void testDeleteSingleFileStorage_FileDoesNotExist() {
-        StorageManagerResult storageCreationResult = singleFileStorageManager.deleteStorage();
+        StorageManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
 
         Assertions.assertFalse(storageCreationResult.isSuccessful());
         String expectedErrorMessage = "File Storage does not exist";
@@ -31,6 +29,6 @@ public class SingleFileStorageDeletionTest {
 
     @AfterEach
     void cleanUp() {
-        singleFileStorageManager.deleteStorage();
+        singleFileStorageDefinitionManager.deleteStorage();
     }
 }
