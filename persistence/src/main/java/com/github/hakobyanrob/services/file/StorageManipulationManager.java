@@ -8,9 +8,9 @@ public interface StorageManipulationManager {
 
     ManipulationManagerResult addFile(File file);
 
-    ManipulationManagerResult getFile(String filename);
+    ManipulationManagerResult getFile(String fileName);
 
     ManipulationManagerResult updateFile(File file);
 
-    ManipulationManagerResult deleteFile(String filename);
+    ManipulationManagerResult deleteFile(String fileName);
 }

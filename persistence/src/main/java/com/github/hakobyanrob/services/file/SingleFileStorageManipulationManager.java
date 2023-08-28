@@ -13,15 +13,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SingleFileStorageManipulationManager implements StorageManipulationManager {
-
     private static final Logger logger = Logger.getLogger(SingleFileStorageManipulationManager.class.getName());
 
     private final StorageDefinitionManager storageDefinitionManager;
+    private static final String FILE_NAME_PREFIX = "fileName#";
+    private static final String DELIMITER = "|";
 
     public SingleFileStorageManipulationManager(StorageDefinitionManager storageDefinitionManager) {
         this.storageDefinitionManager = storageDefinitionManager;
@@ -29,25 +31,19 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
     @Override
     public ManipulationManagerResult addFile(File file) {
-        if (file == null || !file.exists()) {
-            return new ManipulationManagerResult(false, "Invalid file object", null);
+        if (isInvalidFile(file)) {
+            return new ManipulationManagerResult(false, "Invalid file provided", null);
         }
 
         StorageManagerResult managerResult = storageDefinitionManager.getStorage();
-        if (!managerResult.isSuccessful()) {
-            logger.log(Level.WARNING, "Storage not found. Creating new storage.");
-            StorageManagerResult creationResult = storageDefinitionManager.createStorage();
-            if (creationResult.isSuccessful()) {
-                logger.log(Level.INFO, "Successfully created new storage");
-            } else {
-                logger.log(Level.SEVERE, "Failed to create new storage.");
-                return new ManipulationManagerResult(false, "Failed to create new storage", null);
-            }
+        if (!managerResult.isSuccessful() && !createStorage()) {
+            return new ManipulationManagerResult(false, "Failed to create storage", null);
         }
+
         if (getFile(file.getName()).isSuccessful()) {
-            return new ManipulationManagerResult(false,
-                    String.format("File with this name %s already exists", file.getName()), null);
+            return new ManipulationManagerResult(false, "File already exists with the same name", null);
         }
+
         try (FileWriter writer = new FileWriter(managerResult.getStorage(), true)) {
             String metadata = createMetadata(file);
             writer.write(metadata);
@@ -55,63 +51,89 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
             logger.log(Level.INFO, "File added: " + file.getName());
             return new ManipulationManagerResult(true, null, file);
         } catch (IOException e) {
-            String message = "Error creating file: " + file.getName();
-            logger.log(Level.SEVERE, message, e);
-            return new ManipulationManagerResult(false, message, null);
+            return handleIOException("Failed to add the file: " + file.getName(), e);
         }
     }
 
     @Override
-    public ManipulationManagerResult getFile(String filename) {
+    public ManipulationManagerResult getFile(String fileName) {
+        if (isInvalidFileName(fileName)) {
+            return new ManipulationManagerResult(false, "Invalid file name provided", null);
+        }
+
         StorageManagerResult managerResult = storageDefinitionManager.getStorage();
         if (!managerResult.isSuccessful()) {
-            String error = "Failed to get storage.";
-            logger.log(Level.SEVERE, error);
-            return new ManipulationManagerResult(false, error, null);
+            return new ManipulationManagerResult(false, "Failed to get storage", null);
         }
-        File storage = managerResult.getStorage();
+
         try {
-            File file = findFile(storage, filename);
+            File file = findFile(managerResult.getStorage(), fileName);
             if (file != null) {
-                logger.log(Level.INFO, "Successfully found the file: " + filename);
+                logger.log(Level.INFO, "Successfully found the file: " + fileName);
                 return new ManipulationManagerResult(true, null, file);
             } else {
-                String error = "Failed to find file: " + filename;
-                logger.log(Level.SEVERE, error);
-                return new ManipulationManagerResult(false, error, null);
+                return new ManipulationManagerResult(false, "File not found: " + fileName, null);
             }
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to find the file: " + e);
-            return new ManipulationManagerResult(false, e.getMessage(), null);
+            return handleIOException("Failed to retrieve the file: " + e, e);
         }
     }
 
     @Override
     public ManipulationManagerResult updateFile(File file) {
-        ManipulationManagerResult manipulationManagerResult = deleteFile(file.getName());
-        if (!manipulationManagerResult.isSuccessful()) {
-            return manipulationManagerResult;
+        if (isInvalidFile(file)) {
+            return new ManipulationManagerResult(false, "Invalid file provided", null);
         }
+
+        ManipulationManagerResult deleteResult = deleteFile(file.getName());
+        if (!deleteResult.isSuccessful()) {
+            return deleteResult;
+        }
+
         return addFile(file);
     }
 
     @Override
-    public ManipulationManagerResult deleteFile(String filename) {
+    public ManipulationManagerResult deleteFile(String fileName) {
+        if (isInvalidFileName(fileName)) {
+            return new ManipulationManagerResult(false, "Invalid file name provided", null);
+        }
+
         StorageManagerResult managerResult = storageDefinitionManager.getStorage();
         if (!managerResult.isSuccessful()) {
-            String error = "Failed to get storage.";
-            logger.log(Level.SEVERE, error);
-            return new ManipulationManagerResult(false, error, null);
+            return new ManipulationManagerResult(false, "Failed to get storage", null);
         }
-        File storage = managerResult.getStorage();
 
         try {
-            deleteFile(storage, filename);
+            deleteFile(managerResult.getStorage(), fileName);
             return new ManipulationManagerResult(true, null, null);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to delete the file: " + e);
-            return new ManipulationManagerResult(false, e.getMessage(), null);
+            return handleIOException("Failed to delete the file: " + e, e);
         }
+    }
+
+    private boolean isInvalidFile(File file) {
+        return file == null || !file.exists();
+    }
+
+    private boolean isInvalidFileName(String fileName) {
+        return fileName == null || fileName.isBlank();
+    }
+
+    private boolean createStorage() {
+        StorageManagerResult creationResult = storageDefinitionManager.createStorage();
+        if (creationResult.isSuccessful()) {
+            logger.log(Level.INFO, "Successfully created new storage");
+            return true;
+        } else {
+            logger.log(Level.SEVERE, "Failed to create new storage");
+            return false;
+        }
+    }
+
+    private ManipulationManagerResult handleIOException(String message, IOException e) {
+        logger.log(Level.SEVERE, message, e);
+        return new ManipulationManagerResult(false, message, null);
     }
 
     private String createMetadata(File file) throws IOException {
@@ -121,12 +143,11 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
         // We can easily add file creation time and other attributes to the saved data using the following method:
         // BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
-        String metadata = String.format(
-                "fileName#%s|%s",
+        String metadata = String.format(FILE_NAME_PREFIX + "%s" + DELIMITER + "%s",
                 file.getName(), encodedFile.replace("\"", "\\\""));
         long size = metadata.length();
 
-        return size + "|" + metadata;
+        return size + DELIMITER + metadata;
     }
 
     private String encodeFile(Path path) throws IOException {
@@ -139,7 +160,6 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
         return convertByteArrayToFile(fileName, decode);
     }
 
-    //The file will be deleted on exit as Java must create a physical file for the object.
     private File convertByteArrayToFile(String filePath, byte[] byteArray) throws IOException {
         File file = new File(filePath);
         file.deleteOnExit();
@@ -153,15 +173,15 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
         try (BufferedReader reader = new BufferedReader(new FileReader(storage))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                int length = Integer.parseInt(line.substring(0, line.indexOf("|")));
-                line = line.substring(line.indexOf("|") + 1); // Skip the length and move to the next section
+                int length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
+                line = line.substring(line.indexOf(DELIMITER) + 1); // Skip the length and move to the next section
 
-                String currentFileName = line.substring(line.indexOf("fileName#") + 9, line.indexOf("|", line.indexOf("fileName#")));
+                String currentFileName = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
                 while (!currentFileName.equals(targetFileName) && length < line.length()) {
                     line = line.substring(length);
-                    length = Integer.parseInt(line.substring(0, line.indexOf("|")));
-                    line = line.substring(line.indexOf("|") + 1);
-                    currentFileName = line.substring(line.indexOf("fileName#") + 9, line.indexOf("|", line.indexOf("fileName#")));
+                    length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
+                    line = line.substring(line.indexOf(DELIMITER) + 1);
+                    currentFileName = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
                 }
                 if (currentFileName.equals(targetFileName)) {
                     String encodedContents = line.substring(10 + targetFileName.length(), length);
@@ -178,11 +198,12 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                int length = Integer.parseInt(line.substring(0, line.indexOf("|")));
-                line = line.substring(line.indexOf("|") + 1);
-                String currentLine = length + "|" + line.substring(0, length);
+                int length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
+                line = line.substring(line.indexOf(DELIMITER) + 1);
 
-                String content = line.substring(line.indexOf("fileName#") + 9, line.indexOf("|", line.indexOf("fileName#")));
+                String currentLine = length + DELIMITER + line.substring(0, length);
+
+                String content = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
                 if (!content.equals(targetFileName)) {
                     writer.write(currentLine);
                 }
@@ -191,13 +212,13 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
         File backup = new File("backup.txt");
         backup.deleteOnExit();
-        Files.copy(storage.toPath(), backup.toPath());
+        Files.copy(storage.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         if (storage.delete() && tempFile.renameTo(storage)) {
-            System.out.println("Content removed successfully.");
+            logger.log(Level.INFO, "Content removed successfully.");
         } else {
-            System.err.println("Failed to remove content.");
-            System.err.println("Reverting to back-up.");
+            logger.log(Level.WARNING, "Failed to remove content.");
+            logger.log(Level.WARNING, "Reverting to back-up.");
             Files.copy(backup.toPath(), storage.toPath());
         }
     }
