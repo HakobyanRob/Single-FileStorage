@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,8 +27,14 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
     private static final String FILE_NAME_PREFIX = "fileName#";
     private static final String DELIMITER = "|";
 
+    private final Lock readLock;
+    private final Lock writeLock;
+
     public SingleFileStorageManipulationManager(StorageDefinitionManager storageDefinitionManager) {
         this.storageDefinitionManager = storageDefinitionManager;
+        ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
+        readLock = rwLock.readLock();
+        writeLock = rwLock.writeLock();
     }
 
     @Override
@@ -35,23 +43,28 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
             return new ManipulationManagerResult(false, "Invalid file provided", null);
         }
 
-        StorageManagerResult managerResult = storageDefinitionManager.getStorage();
-        if (!managerResult.isSuccessful() && !createStorage()) {
-            return new ManipulationManagerResult(false, "Failed to create storage", null);
-        }
+        writeLock.lock();
+        try {
+            StorageManagerResult managerResult = storageDefinitionManager.getStorage();
+            if (!managerResult.isSuccessful() && !createStorage()) {
+                return new ManipulationManagerResult(false, "Failed to create storage", null);
+            }
 
-        if (getFile(file.getName()).isSuccessful()) {
-            return new ManipulationManagerResult(false, "File already exists with the same name", null);
-        }
+            if (getFile(file.getName()).isSuccessful()) {
+                return new ManipulationManagerResult(false, "File already exists with the same name", null);
+            }
 
-        try (FileWriter writer = new FileWriter(managerResult.getStorage(), true)) {
-            String metadata = createMetadata(file);
-            writer.write(metadata);
+            try (FileWriter writer = new FileWriter(managerResult.getStorage(), true)) {
+                String metadata = createMetadata(file);
+                writer.write(metadata);
 
-            logger.log(Level.INFO, "File added: " + file.getName());
-            return new ManipulationManagerResult(true, null, file);
-        } catch (IOException e) {
-            return handleIOException("Failed to add the file: " + file.getName(), e);
+                logger.log(Level.INFO, "File added: " + file.getName());
+                return new ManipulationManagerResult(true, null, file);
+            } catch (IOException e) {
+                return handleIOException("Failed to add the file: " + file.getName(), e);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -61,21 +74,26 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
             return new ManipulationManagerResult(false, "Invalid file name provided", null);
         }
 
-        StorageManagerResult managerResult = storageDefinitionManager.getStorage();
-        if (!managerResult.isSuccessful()) {
-            return new ManipulationManagerResult(false, "Failed to get storage", null);
-        }
-
+        readLock.lock();
         try {
-            File file = findFile(managerResult.getStorage(), fileName);
-            if (file != null) {
-                logger.log(Level.INFO, "Successfully found the file: " + fileName);
-                return new ManipulationManagerResult(true, null, file);
-            } else {
-                return new ManipulationManagerResult(false, "File not found: " + fileName, null);
+            StorageManagerResult managerResult = storageDefinitionManager.getStorage();
+            if (!managerResult.isSuccessful()) {
+                return new ManipulationManagerResult(false, "Failed to get storage", null);
             }
-        } catch (IOException e) {
-            return handleIOException("Failed to retrieve the file: " + e, e);
+
+            try {
+                File file = findFile(managerResult.getStorage(), fileName);
+                if (file != null) {
+                    logger.log(Level.INFO, "Successfully found the file: " + fileName);
+                    return new ManipulationManagerResult(true, null, file);
+                } else {
+                    return new ManipulationManagerResult(false, "File not found: " + fileName, null);
+                }
+            } catch (IOException e) {
+                return handleIOException("Failed to retrieve the file: " + e, e);
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
@@ -98,17 +116,22 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
         if (isInvalidFileName(fileName)) {
             return new ManipulationManagerResult(false, "Invalid file name provided", null);
         }
-
-        StorageManagerResult managerResult = storageDefinitionManager.getStorage();
-        if (!managerResult.isSuccessful()) {
-            return new ManipulationManagerResult(false, "Failed to get storage", null);
-        }
-
+        //todo improve delete method
+        writeLock.lock();
         try {
-            deleteFile(managerResult.getStorage(), fileName);
-            return new ManipulationManagerResult(true, null, null);
-        } catch (IOException e) {
-            return handleIOException("Failed to delete the file: " + e, e);
+            StorageManagerResult managerResult = storageDefinitionManager.getStorage();
+            if (!managerResult.isSuccessful()) {
+                return new ManipulationManagerResult(false, "Failed to get storage", null);
+            }
+
+            try {
+                deleteFile(managerResult.getStorage(), fileName);
+                return new ManipulationManagerResult(true, null, null);
+            } catch (IOException e) {
+                return handleIOException("Failed to delete the file: " + e, e);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -184,7 +207,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
                     currentFileName = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
                 }
                 if (currentFileName.equals(targetFileName)) {
-                    String encodedContents = line.substring(10 + targetFileName.length(), length);
+                    String encodedContents = line.substring(FILE_NAME_PREFIX.length() + targetFileName.length() + DELIMITER.length(), length);
                     return decodeFile(targetFileName, encodedContents);
                 }
             }
