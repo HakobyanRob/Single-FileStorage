@@ -1,4 +1,4 @@
-package com.github.hakobyanrob.services.file;
+package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
 

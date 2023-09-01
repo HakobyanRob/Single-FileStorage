@@ -2,9 +2,9 @@ package com.github.hakobyanrob;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
 import com.github.hakobyanrob.services.common.StorageFilePathManager;
-import com.github.hakobyanrob.services.file.SingleFileStorageManipulationManager;
-import com.github.hakobyanrob.services.file.StorageManipulationManager;
-import com.github.hakobyanrob.services.singlefilestorage.SingleFileStorageDefinitionManager;
+import com.github.hakobyanrob.services.storageManipulation.SingleFileStorageManipulationManager;
+import com.github.hakobyanrob.services.storageManipulation.StorageManipulationManager;
+import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 
 import java.io.File;
 import java.util.Scanner;

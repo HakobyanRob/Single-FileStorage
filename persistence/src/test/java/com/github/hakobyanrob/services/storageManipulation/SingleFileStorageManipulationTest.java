@@ -1,7 +1,7 @@
-package com.github.hakobyanrob.services.file;
+package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
-import com.github.hakobyanrob.services.singlefilestorage.SingleFileStorageDefinitionManager;
+import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,19 +16,19 @@ public class SingleFileStorageManipulationTest extends ManipulationTest {
 
     @BeforeAll
     static void createStorage() {
-        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager("src/test/resources/file/storage.txt");
+        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager("src/test/resources/storageManipulation/storage.txt");
         storageManipulationManager = new SingleFileStorageManipulationManager(singleFileStorageDefinitionManager);
         singleFileStorageDefinitionManager.createStorage();
     }
 
-    private final String txtTestFile = "src/test/resources/file/text.txt";
-    private final String pngTestFile = "src/test/resources/file/json.json";
-    private final String jsonTestFile = "src/test/resources/file/image.png";
-    private final String audioTestFile = "src/test/resources/file/audio.mp3";
-    private final String xlsxTestFile = "src/test/resources/file/excel.xlsx";
-    private final String zipTestFile = "src/test/resources/file/resources.zip";
-    private final String charactersTestFile = "src/test/resources/file/characters.txt";
-    private final String withSpecialCharacterTestFile = "src/test/resources/file/filewith\uF07Cinname.txt";
+    private final String txtTestFile = "src/test/resources/storageManipulation/text.txt";
+    private final String pngTestFile = "src/test/resources/storageManipulation/json.json";
+    private final String jsonTestFile = "src/test/resources/storageManipulation/image.png";
+    private final String audioTestFile = "src/test/resources/storageManipulation/audio.mp3";
+    private final String xlsxTestFile = "src/test/resources/storageManipulation/excel.xlsx";
+    private final String zipTestFile = "src/test/resources/storageManipulation/resources.zip";
+    private final String charactersTestFile = "src/test/resources/storageManipulation/characters.txt";
+    private final String withSpecialCharacterTestFile = "src/test/resources/storageManipulation/filewith\uF07Cinname.txt";
     private final String emptyFile = "";
     private final String spaceFile = "   ";
     private final String nonExistentFile = "notExistingFile";
@@ -90,8 +90,46 @@ public class SingleFileStorageManipulationTest extends ManipulationTest {
         Assertions.assertNull(getResult.getFile());
     }
 
-    //update and get test
-    //delete
+    @ParameterizedTest
+    @ValueSource(strings = {emptyFile, spaceFile, nonExistentFile})
+    void updateEmptyFile(String filePath) {
+        ManipulationManagerResult addResult = storageManipulationManager.updateFile(new File(filePath));
+        Assertions.assertFalse(addResult.isSuccessful());
+        Assertions.assertEquals("Invalid file provided", addResult.getError());
+    }
+
+    @Test
+    void updateNullFile() {
+        ManipulationManagerResult addResult = storageManipulationManager.updateFile(null);
+        Assertions.assertFalse(addResult.isSuccessful());
+        Assertions.assertEquals("Invalid file provided", addResult.getError());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {emptyFile, spaceFile})
+    void deleteEmptyFileName(String fileName) {
+        ManipulationManagerResult getResult = storageManipulationManager.deleteFile(fileName);
+        Assertions.assertFalse(getResult.isSuccessful());
+        Assertions.assertEquals("Invalid file name provided", getResult.getError());
+        Assertions.assertNull(getResult.getFile());
+    }
+
+    @Test
+    void deleteNullFileName() {
+        ManipulationManagerResult getResult = storageManipulationManager.deleteFile(null);
+        Assertions.assertFalse(getResult.isSuccessful());
+        Assertions.assertEquals("Invalid file name provided", getResult.getError());
+        Assertions.assertNull(getResult.getFile());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {nonExistentFile})
+    void deleteNonExistentFileName(String fileName) {
+        ManipulationManagerResult getResult = storageManipulationManager.deleteFile(fileName);
+        Assertions.assertTrue(getResult.isSuccessful());
+        Assertions.assertNull(getResult.getError());
+        Assertions.assertNull(getResult.getFile());
+    }
 
     @AfterAll
     static void deleteStorage() {

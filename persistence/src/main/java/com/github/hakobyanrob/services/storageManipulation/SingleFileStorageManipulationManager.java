@@ -1,8 +1,8 @@
-package com.github.hakobyanrob.services.file;
+package com.github.hakobyanrob.services.storageManipulation;
 
+import com.github.hakobyanrob.result.DefinitionManagerResult;
 import com.github.hakobyanrob.result.ManipulationManagerResult;
-import com.github.hakobyanrob.result.StorageManagerResult;
-import com.github.hakobyanrob.services.singlefilestorage.StorageDefinitionManager;
+import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,7 +45,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
         writeLock.lock();
         try {
-            StorageManagerResult managerResult = storageDefinitionManager.getStorage();
+            DefinitionManagerResult managerResult = storageDefinitionManager.getStorage();
             if (!managerResult.isSuccessful() && !createStorage()) {
                 return new ManipulationManagerResult(false, "Failed to create storage", null);
             }
@@ -76,7 +76,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
         readLock.lock();
         try {
-            StorageManagerResult managerResult = storageDefinitionManager.getStorage();
+            DefinitionManagerResult managerResult = storageDefinitionManager.getStorage();
             if (!managerResult.isSuccessful()) {
                 return new ManipulationManagerResult(false, "Failed to get storage", null);
             }
@@ -119,7 +119,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
         //todo improve delete method
         writeLock.lock();
         try {
-            StorageManagerResult managerResult = storageDefinitionManager.getStorage();
+            DefinitionManagerResult managerResult = storageDefinitionManager.getStorage();
             if (!managerResult.isSuccessful()) {
                 return new ManipulationManagerResult(false, "Failed to get storage", null);
             }
@@ -144,7 +144,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
     }
 
     private boolean createStorage() {
-        StorageManagerResult creationResult = storageDefinitionManager.createStorage();
+        DefinitionManagerResult creationResult = storageDefinitionManager.createStorage();
         if (creationResult.isSuccessful()) {
             logger.log(Level.INFO, "Successfully created new storage");
             return true;

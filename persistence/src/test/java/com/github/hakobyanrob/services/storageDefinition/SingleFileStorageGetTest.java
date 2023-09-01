@@ -1,6 +1,6 @@
-package com.github.hakobyanrob.services.singlefilestorage;
+package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.StorageManagerResult;
+import com.github.hakobyanrob.result.DefinitionManagerResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +14,12 @@ public class SingleFileStorageGetTest {
     @Test
     void testCreateSingleFileStorage_Success() {
         singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(testFilePath);
-        StorageManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
+        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
 
         Assertions.assertTrue(storageCreationResult.isSuccessful());
         Assertions.assertNull(storageCreationResult.getError());
 
-        StorageManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
+        DefinitionManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
         Assertions.assertTrue(getResult.isSuccessful());
         Assertions.assertNull(getResult.getError());
         Assertions.assertEquals(testFilePath, getResult.getStorage().getName());
@@ -33,7 +33,7 @@ public class SingleFileStorageGetTest {
         Assertions.assertTrue(file.createNewFile());
 
 
-        StorageManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
+        DefinitionManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
 
         Assertions.assertTrue(getResult.isSuccessful());
         Assertions.assertNull(getResult.getError());
@@ -44,7 +44,7 @@ public class SingleFileStorageGetTest {
 
     @Test
     void testCreateSingleFileStorage_NonExistent() {
-        StorageManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
+        DefinitionManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
         Assertions.assertFalse(getResult.isSuccessful());
         Assertions.assertEquals("Failed to load Storage", getResult.getError());
         Assertions.assertNull(getResult.getStorage());

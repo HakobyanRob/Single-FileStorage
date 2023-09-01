@@ -1,7 +1,7 @@
-package com.github.hakobyanrob.services.file;
+package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
-import com.github.hakobyanrob.services.singlefilestorage.StorageDefinitionManager;
+import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.File;

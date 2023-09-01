@@ -1,6 +1,6 @@
 package com.github.hakobyanrob.services.common;
 
-import com.github.hakobyanrob.services.singlefilestorage.SingleFileStorageDefinitionManager;
+import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -1,6 +1,6 @@
-package com.github.hakobyanrob.services.singlefilestorage;
+package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.StorageManagerResult;
+import com.github.hakobyanrob.result.DefinitionManagerResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ public class SingleFileStorageDeleteTest {
     void testDeleteSingleFileStorage_Success() {
         singleFileStorageDefinitionManager.createStorage();
 
-        StorageManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
+        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
 
         Assertions.assertTrue(storageCreationResult.isSuccessful());
         Assertions.assertNull(storageCreationResult.getError());
@@ -20,7 +20,7 @@ public class SingleFileStorageDeleteTest {
 
     @Test
     void testDeleteSingleFileStorage_FileDoesNotExist() {
-        StorageManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
+        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
 
         Assertions.assertFalse(storageCreationResult.isSuccessful());
         String expectedErrorMessage = "File Storage does not exist";
