@@ -1,0 +1,16 @@
+{
+  "name": "John Doe",
+  "age": 30,
+  "isStudent": false,
+  "address": {
+    "street": "123 HEAD St",
+    "city": "Sampletown",
+    "country": "Wonderland"
+  },
+  "languages": ["English", "Latin", "Spanish"],
+  "grades": {
+    "math": 1,
+    "science": 85,
+    "history": 100
+  }
+}

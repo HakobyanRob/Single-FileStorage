@@ -48,11 +48,11 @@ public class ManipulationTest {
         return false;
     }
 
-    protected void assertCreation(File testFile) {
-        ManipulationManagerResult manipulationManagerResult = storageManipulationManager.addFile(testFile);
-        Assertions.assertTrue(manipulationManagerResult.isSuccessful());
-        Assertions.assertNull(manipulationManagerResult.getError());
-        Assertions.assertEquals(testFile, manipulationManagerResult.getFile());
+    protected void assertAdd(File testFile) {
+        ManipulationManagerResult addResult = storageManipulationManager.addFile(testFile);
+        Assertions.assertTrue(addResult.isSuccessful());
+        Assertions.assertNull(addResult.getError());
+        Assertions.assertEquals(testFile, addResult.getFile());
     }
 
     protected void assertFileExists(File testFile) throws IOException {
@@ -62,11 +62,25 @@ public class ManipulationTest {
         Assertions.assertTrue(compareFiles(testFile, getResult.file()));
     }
 
-    protected void assertDeletion(File testFile) {
-        ManipulationManagerResult manipulationManagerResult = storageManipulationManager.deleteFile(testFile.getName());
-        Assertions.assertTrue(manipulationManagerResult.isSuccessful());
-        Assertions.assertNull(manipulationManagerResult.getError());
-        Assertions.assertNull(manipulationManagerResult.getFile());
+    protected void assertFileExistsWithDifferentContent(File testFile) throws IOException {
+        ManipulationManagerResult getResult = storageManipulationManager.getFile(testFile.getName());
+        Assertions.assertTrue(getResult.isSuccessful());
+        Assertions.assertNotNull(getResult.file());
+        Assertions.assertFalse(compareFiles(testFile, getResult.file()));
+    }
+
+    protected void assertUpdate(File testFile) {
+        ManipulationManagerResult updateResult = storageManipulationManager.updateFile(testFile);
+        Assertions.assertTrue(updateResult.isSuccessful());
+        Assertions.assertNull(updateResult.getError());
+        Assertions.assertEquals(testFile, updateResult.getFile());
+    }
+
+    protected void assertDelete(File testFile) {
+        ManipulationManagerResult deleteResult = storageManipulationManager.deleteFile(testFile.getName());
+        Assertions.assertTrue(deleteResult.isSuccessful());
+        Assertions.assertNull(deleteResult.getError());
+        Assertions.assertNull(deleteResult.getFile());
     }
 
     protected void assertFileNotExists(File testFile) {
