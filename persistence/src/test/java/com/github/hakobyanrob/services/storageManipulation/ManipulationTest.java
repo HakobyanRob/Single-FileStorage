@@ -1,6 +1,7 @@
 package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 import org.junit.jupiter.api.Assertions;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ManipulationTest {
+    protected static StoragePropertiesManager storagePropertiesManager;
     protected static StorageDefinitionManager singleFileStorageDefinitionManager;
     protected static StorageManipulationManager storageManipulationManager;
 

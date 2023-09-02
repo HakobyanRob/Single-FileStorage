@@ -1,6 +1,7 @@
 package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -19,7 +20,8 @@ public class SingleFileStorageManipulationTest extends ManipulationTest {
 
     @BeforeAll
     static void createStorage() {
-        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(resourceFilePath + "/storage.txt");
+        storagePropertiesManager = new StoragePropertiesManager(resourceFilePath + "testStorage.properties");
+        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(resourceFilePath + storagePropertiesManager.getStoragePath());
         storageManipulationManager = new SingleFileStorageManipulationManager(singleFileStorageDefinitionManager);
         singleFileStorageDefinitionManager.createStorage();
     }

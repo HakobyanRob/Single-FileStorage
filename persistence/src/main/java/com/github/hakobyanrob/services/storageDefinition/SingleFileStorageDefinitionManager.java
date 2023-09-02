@@ -1,6 +1,7 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
 import com.github.hakobyanrob.result.DefinitionManagerResult;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 
 import java.io.File;
 import java.io.IOException;

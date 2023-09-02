@@ -1,10 +1,11 @@
 package com.github.hakobyanrob;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
-import com.github.hakobyanrob.services.common.StorageFilePathManager;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
+import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
+import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 import com.github.hakobyanrob.services.storageManipulation.SingleFileStorageManipulationManager;
 import com.github.hakobyanrob.services.storageManipulation.StorageManipulationManager;
-import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 
 import java.io.File;
 import java.util.Scanner;
@@ -20,10 +21,9 @@ public class MainApp {
         String defaultStoragePropertiesPath = "persistence/src/main/resources/storage.properties";
         String storagePropertiesPath = args.length > 0 ? args[0] : defaultStoragePropertiesPath;
 
-        StorageFilePathManager storageFilePathManager = new StorageFilePathManager(storagePropertiesPath);
-        storageFilePathManager.readStorageProperties();
-        var storageDefinitionManager = new SingleFileStorageDefinitionManager(storageFilePathManager.getStoragePath());
-        storageDefinitionManager.createStorage();
+        StoragePropertiesManager storagePropertiesManager = new StoragePropertiesManager(storagePropertiesPath);
+        StorageDefinitionManager storageDefinitionManager = new SingleFileStorageDefinitionManager(storagePropertiesManager.getStoragePath());
+        assert storageDefinitionManager.createStorage().isSuccessful();
 
         return new SingleFileStorageManipulationManager(storageDefinitionManager);
     }

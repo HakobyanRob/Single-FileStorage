@@ -2,6 +2,7 @@ package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.DefinitionManagerResult;
 import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 
 import java.io.BufferedReader;
@@ -11,6 +12,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -24,7 +28,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
     private static final Logger logger = Logger.getLogger(SingleFileStorageManipulationManager.class.getName());
 
     private final StorageDefinitionManager storageDefinitionManager;
-    private static final String FILE_NAME_PREFIX = "fileName#";
+    private static final String FILE_NAME_PREFIX = "fileName";
     private static final String DELIMITER = "|";
 
     private final Lock readLock;
@@ -116,7 +120,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
         if (isInvalidFileName(fileName)) {
             return new ManipulationManagerResult(false, "Invalid file name provided", null);
         }
-        //todo improve delete method
+
         writeLock.lock();
         try {
             DefinitionManagerResult managerResult = storageDefinitionManager.getStorage();
@@ -166,7 +170,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
         // We can easily add file creation time and other attributes to the saved data using the following method:
         // BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
-        String metadata = String.format(FILE_NAME_PREFIX + "%s" + DELIMITER + "%s",
+        String metadata = String.format("%s" + DELIMITER +  "%s",
                 file.getName(), encodedFile.replace("\"", "\\\""));
         long size = metadata.length();
 
@@ -199,15 +203,15 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
                 int length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
                 line = line.substring(line.indexOf(DELIMITER) + 1); // Skip the length and move to the next section
 
-                String currentFileName = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
+                String currentFileName = line.substring(0, line.indexOf(DELIMITER));
                 while (!currentFileName.equals(targetFileName) && length < line.length()) {
                     line = line.substring(length);
                     length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
                     line = line.substring(line.indexOf(DELIMITER) + 1);
-                    currentFileName = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
+                    currentFileName = line.substring(0, line.indexOf(DELIMITER));
                 }
                 if (currentFileName.equals(targetFileName)) {
-                    String encodedContents = line.substring(FILE_NAME_PREFIX.length() + targetFileName.length() + DELIMITER.length(), length);
+                    String encodedContents = line.substring(targetFileName.length() + DELIMITER.length(), length);
                     return decodeFile(targetFileName, encodedContents);
                 }
             }
@@ -226,7 +230,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
                 String currentLine = length + DELIMITER + line.substring(0, length);
 
-                String content = line.substring(line.indexOf(FILE_NAME_PREFIX) + 9, line.indexOf(DELIMITER, line.indexOf(FILE_NAME_PREFIX)));
+                String content = line.substring(0, line.indexOf(DELIMITER));
                 if (!content.equals(targetFileName)) {
                     writer.write(currentLine);
                 }
