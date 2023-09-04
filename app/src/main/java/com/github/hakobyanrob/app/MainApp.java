@@ -1,4 +1,4 @@
-package com.github.hakobyanrob;
+package com.github.hakobyanrob.app;
 
 import com.github.hakobyanrob.result.ManipulationManagerResult;
 import com.github.hakobyanrob.services.common.StoragePropertiesManager;
@@ -23,7 +23,10 @@ public class MainApp {
 
         StoragePropertiesManager storagePropertiesManager = new StoragePropertiesManager(storagePropertiesPath);
         StorageDefinitionManager storageDefinitionManager = new SingleFileStorageDefinitionManager(storagePropertiesManager.getStoragePath());
-        assert storageDefinitionManager.createStorage().isSuccessful();
+        if (!storageDefinitionManager.createStorage().isSuccessful()) {
+            System.err.println("Failed to create Storage...");
+            System.exit(0);
+        }
 
         return new SingleFileStorageManipulationManager(storageDefinitionManager);
     }

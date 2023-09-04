@@ -22,12 +22,14 @@ public class StoragePropertiesManager {
 
     private void initializeProperties() {
         Properties prop = new Properties();
+        String defaultStoragePath = "storage.txt";
         try (FileInputStream inputStream = new FileInputStream(storagePropertiesPath)) {
             prop.load(inputStream);
-            storagePath = prop.getProperty(storagePathKey);
+            storagePath = prop.getProperty(storagePathKey, defaultStoragePath);
         } catch (IOException | NumberFormatException e) {
             logger.log(Level.WARNING, "Failed to read storage properties from file "
                     + storagePropertiesPath + ". Default values will be set", e);
+            storagePath = defaultStoragePath;
         }
     }
 
