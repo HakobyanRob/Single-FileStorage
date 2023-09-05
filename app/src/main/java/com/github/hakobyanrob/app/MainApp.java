@@ -8,6 +8,7 @@ import com.github.hakobyanrob.services.storageManipulation.SingleFileStorageMani
 import com.github.hakobyanrob.services.storageManipulation.StorageManipulationManager;
 
 import java.io.File;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MainApp {
@@ -43,8 +44,15 @@ public class MainApp {
             System.out.println("5. Exit");
             System.out.print("Enter your choice: ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice;
+            try {
+                choice = scanner.nextInt();
+            } catch (InputMismatchException ex) {
+                System.err.println("Invalid input");
+                continue;
+            } finally {
+                scanner.nextLine();
+            }
 
             switch (choice) {
                 case 1 -> {

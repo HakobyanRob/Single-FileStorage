@@ -11,12 +11,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
-import java.io.IOException;
 
-public class SingleFileStorageManipulationTest extends ManipulationTest {
+public class SingleFileStorageManipulationTestNegative extends ManipulationTest {
 
     private final static String resourceFilePath = "src/test/resources/storageManipulation/";
-    private final static String updatedFilePath = "toUpdate/";
 
     @BeforeAll
     static void createStorage() {
@@ -26,40 +24,9 @@ public class SingleFileStorageManipulationTest extends ManipulationTest {
         singleFileStorageDefinitionManager.createStorage();
     }
 
-    private final String txtTestFile = "text.txt";
-    private final String pngTestFile = "json.json";
-    private final String jsonTestFile = "image.png";
-    private final String audioTestFile = "audio.mp3";
-    private final String xlsxTestFile = "excel.xlsx";
-    private final String zipTestFile = "resources.zip";
-    private final String charactersTestFile = "characters.txt";
-    private final String withSpecialCharacterTestFile = "filewith\uF07Cinname.txt";
     private final String emptyFile = "";
     private final String spaceFile = "   ";
     private final String nonExistentFile = "notExistingFile";
-
-    @ParameterizedTest
-    @ValueSource(strings = {txtTestFile, pngTestFile, jsonTestFile,
-            audioTestFile, xlsxTestFile, charactersTestFile, zipTestFile, withSpecialCharacterTestFile})
-    void fullFlowPositiveTest(String fileName) throws IOException {
-        String testFilePath = resourceFilePath + fileName;
-        File testFile = new File(testFilePath);
-        Assertions.assertTrue(testFile.exists(), "Test file does not exist: " + testFilePath);
-
-        String updateTestFilePath = resourceFilePath + updatedFilePath + fileName;
-        File updateTestFile = new File(updateTestFilePath);
-        Assertions.assertTrue(updateTestFile.exists(), "Test file does not exist: " + updateTestFile);
-
-        assertAdd(testFile);
-        assertFileExists(testFile);
-
-        assertUpdate(updateTestFile);
-        assertFileExists(updateTestFile);
-        assertFileExistsWithDifferentContent(testFile);
-
-        assertDelete(updateTestFile);
-        assertFileNotExists(updateTestFile);
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {emptyFile, spaceFile, nonExistentFile})
@@ -138,8 +105,8 @@ public class SingleFileStorageManipulationTest extends ManipulationTest {
     @ValueSource(strings = {nonExistentFile})
     void deleteNonExistentFileName(String fileName) {
         ManipulationManagerResult getResult = storageManipulationManager.deleteFile(fileName);
-        Assertions.assertTrue(getResult.isSuccessful());
-        Assertions.assertNull(getResult.getError());
+        Assertions.assertFalse(getResult.isSuccessful());
+        Assertions.assertEquals("File not found: " + fileName, getResult.getError());
         Assertions.assertNull(getResult.getFile());
     }
 

@@ -2,7 +2,6 @@ package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.DefinitionManagerResult;
 import com.github.hakobyanrob.result.ManipulationManagerResult;
-import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 
 import java.io.BufferedReader;
@@ -12,11 +11,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.concurrent.locks.Lock;
@@ -28,7 +25,6 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
     private static final Logger logger = Logger.getLogger(SingleFileStorageManipulationManager.class.getName());
 
     private final StorageDefinitionManager storageDefinitionManager;
-    private static final String FILE_NAME_PREFIX = "fileName";
     private static final String DELIMITER = "|";
 
     private final Lock readLock;
@@ -129,8 +125,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
             }
 
             try {
-                deleteFile(managerResult.getStorage(), fileName);
-                return new ManipulationManagerResult(true, null, null);
+                return deleteFile(managerResult.getStorage(), fileName);
             } catch (IOException e) {
                 return handleIOException("Failed to delete the file: " + e, e);
             }
@@ -219,34 +214,55 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
         return null;
     }
 
-    private void deleteFile(File storage, String targetFileName) throws IOException {
-        File tempFile = new File("temp.txt");
+
+    private ManipulationManagerResult deleteFile(File storage, String targetFileName) throws IOException {
+        Files.createDirectories(Paths.get("temp"));
+        File tempFile = new File("temp/temp.txt");
+        tempFile.deleteOnExit();
+        boolean deletedFile = false;
         try (BufferedReader reader = new BufferedReader(new FileReader(storage));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 int length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
-                line = line.substring(line.indexOf(DELIMITER) + 1);
+                while (length <= line.length()) {
+                    line = line.substring(line.indexOf(DELIMITER) + 1);
+                    String currentFileName = line.substring(0, line.indexOf(DELIMITER));
 
-                String currentLine = length + DELIMITER + line.substring(0, length);
-
-                String content = line.substring(0, line.indexOf(DELIMITER));
-                if (!content.equals(targetFileName)) {
-                    writer.write(currentLine);
+                    if (!currentFileName.equals(targetFileName)) {
+                        StringBuilder currentFile = new StringBuilder();
+                        String encodedContents = line.substring(currentFileName.length() + DELIMITER.length(), length);
+                        currentFile.append(length).append(DELIMITER).append(currentFileName).append(DELIMITER).append(encodedContents);
+                        writer.write(currentFile.toString());
+                    } else {
+                        deletedFile = true;
+                    }
+                    line = line.substring(length);
+                    if (!line.isBlank()) {
+                        length = Integer.parseInt(line.substring(0, line.indexOf(DELIMITER)));
+                    }
                 }
             }
         }
 
-        File backup = new File("backup.txt");
-        backup.deleteOnExit();
-        Files.copy(storage.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        ManipulationManagerResult result;
+        if (deletedFile) {
+            File backup = new File("temp/backup.txt");
+            backup.deleteOnExit();
+            Files.copy(storage.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-        if (storage.delete() && tempFile.renameTo(storage)) {
-            logger.log(Level.INFO, "Content removed successfully.");
+            if (storage.delete() && tempFile.renameTo(storage)) {
+                logger.log(Level.INFO, "Content removed successfully.");
+                result = new ManipulationManagerResult(true, null, null);
+            } else {
+                logger.log(Level.WARNING, "Failed to remove content.");
+                logger.log(Level.WARNING, "Reverting to back-up.");
+                Files.copy(backup.toPath(), storage.toPath());
+                result = new ManipulationManagerResult(false, "Failed to remove content.", null);
+            }
         } else {
-            logger.log(Level.WARNING, "Failed to remove content.");
-            logger.log(Level.WARNING, "Reverting to back-up.");
-            Files.copy(backup.toPath(), storage.toPath());
+            result = new ManipulationManagerResult(false, "File not found: " + targetFileName, null);
         }
+        return result;
     }
 }
