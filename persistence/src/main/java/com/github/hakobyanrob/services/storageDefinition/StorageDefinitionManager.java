@@ -1,6 +1,9 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.DefinitionManagerResult;
+import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.result.ResultDTO;
+
+import java.io.File;
 
 /**
  * The StorageDefinitionManager interface defines methods for managing storage operations.
@@ -11,21 +14,21 @@ public interface StorageDefinitionManager {
     /**
      * Creates a new storage at the file path specified in storage.properties.
      *
-     * @return A DefinitionManagerResult indicating the result of the operation.
+     * @return A ResultDTO indicating the result of the operation.
      */
-    DefinitionManagerResult createStorage();
+    ResultDTO<File> createStorage();
 
     /**
      * Deletes the storage.
      *
-     * @return A DefinitionManagerResult indicating the result of the operation.
+     * @return A Result indicating the result of the operation.
      */
-    DefinitionManagerResult deleteStorage();
+    Result deleteStorage();
 
     /**
      * Retrieves the storage.
      *
-     * @return A DefinitionManagerResult indicating the result of the operation.
+     * @return A ResultDTO indicating the result of the operation.
      */
-    DefinitionManagerResult getStorage();
+    ResultDTO<File> getStorage();
 }

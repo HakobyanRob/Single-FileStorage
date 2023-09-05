@@ -1,6 +1,6 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.DefinitionManagerResult;
+import com.github.hakobyanrob.result.Result;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,19 +12,19 @@ public class SingleFileStorageDeleteTest {
     void testDeleteSingleFileStorage_Success() {
         singleFileStorageDefinitionManager.createStorage();
 
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
+        Result result = singleFileStorageDefinitionManager.deleteStorage();
 
-        Assertions.assertTrue(storageCreationResult.isSuccessful());
-        Assertions.assertNull(storageCreationResult.getError());
+        Assertions.assertTrue(result.isSuccessful());
+        Assertions.assertNull(result.getErrorMessage());
     }
 
     @Test
     void testDeleteSingleFileStorage_FileDoesNotExist() {
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.deleteStorage();
+        Result result = singleFileStorageDefinitionManager.deleteStorage();
 
-        Assertions.assertFalse(storageCreationResult.isSuccessful());
+        Assertions.assertFalse(result.isSuccessful());
         String expectedErrorMessage = "File Storage does not exist";
-        Assertions.assertEquals(expectedErrorMessage, storageCreationResult.getError());
+        Assertions.assertEquals(expectedErrorMessage, result.getErrorMessage());
     }
 
     @AfterEach

@@ -1,6 +1,7 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.DefinitionManagerResult;
+import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.result.ResultDTO;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,36 +29,36 @@ public class SingleFileStorageDefinitionManager implements StorageDefinitionMana
      * Creates a new storage at the file path specified in storage.properties.
      * If storage exists or a file with same name and extension exists return the already existing file.
      *
-     * @return A DefinitionManagerResult indicating the result of the operation.
+     * @return A ResultDTO indicating the result of the operation.
      * If the operation succeeds it will return a reference to the object.
      */
     @Override
-    public DefinitionManagerResult createStorage() {
+    public ResultDTO<File> createStorage() {
         File file = new File(storagePath);
         if (singleFileStorage != null) {
             String message = "File Storage already created!";
             logger.log(Level.INFO, message);
-            return new DefinitionManagerResult(true, null, singleFileStorage);
+            return new ResultDTO<>(singleFileStorage);
         }
         if (loadStorage() != null) {
             String message = "File Storage found at: " + storagePath + ". Not creating a new one";
             logger.log(Level.INFO, message);
-            return new DefinitionManagerResult(true, null, singleFileStorage);
+            return new ResultDTO<>(singleFileStorage);
         }
 
         try {
             if (!file.createNewFile()) {
                 String message = "Failed to create the file storage at path: " + storagePath;
                 logger.log(Level.SEVERE, message);
-                return new DefinitionManagerResult(false, message, null);
+                return new ResultDTO<>(message);
             }
             logger.log(Level.INFO, "File storage created successfully at path: " + storagePath);
             singleFileStorage = file;
-            return new DefinitionManagerResult(true, null, singleFileStorage);
+            return new ResultDTO<>(singleFileStorage);
         } catch (IOException e) {
             String message = "Error creating the file storage at path: " + storagePath;
             logger.log(Level.SEVERE, message, e);
-            return new DefinitionManagerResult(false, e.getMessage(), null);
+            return new ResultDTO<>(e.getMessage());
         }
     }
 
@@ -65,46 +66,46 @@ public class SingleFileStorageDefinitionManager implements StorageDefinitionMana
      * Deletes the single-file storage.
      * Does not delete the storage if it has not been loaded before to not delete is accidentally.
      *
-     * @return A DefinitionManagerResult indicating the result of the operation.
+     * @return A Result indicating the result of the operation.
      */
     @Override
-    public DefinitionManagerResult deleteStorage() {
+    public Result deleteStorage() {
         if (singleFileStorage == null) {
             String message = "File Storage does not exist";
             logger.log(Level.WARNING, message);
-            return new DefinitionManagerResult(false, message, null);
+            return new Result(message);
         }
         if (!singleFileStorage.delete()) {
             String message = "Failed to delete the file storage at path: " + singleFileStorage.getAbsolutePath();
             logger.log(Level.SEVERE, message);
-            return new DefinitionManagerResult(false, message, null);
+            return new Result(message);
         }
         logger.log(Level.INFO, "File storage deleted at path: " + singleFileStorage);
         singleFileStorage = null;
-        return new DefinitionManagerResult(true, null, null);
+        return new Result();
     }
 
     /**
      * Retrieves the single-file storage.
      * If storage has not been loaded before, tries to find the storage at the storage path.
      *
-     * @return A DefinitionManagerResult indicating the result of the operation. If the storage exists, the result will
+     * @return A ResultDTO indicating the result of the operation. If the storage exists, the result will
      * contain the reference to the storage file. If the storage does not exist, the result will indicate failure.
      */
     @Override
-    public DefinitionManagerResult getStorage() {
+    public ResultDTO<File> getStorage() {
         if (singleFileStorage == null) {
             logger.log(Level.WARNING, "File Storage not found. Trying to load from path: " + storagePath);
             File loadedStorage = loadStorage();
             if (loadedStorage == null) {
                 String message = "Failed to load Storage";
                 logger.log(Level.SEVERE, message);
-                return new DefinitionManagerResult(false, message, null);
+                return new ResultDTO<>(message);
             } else {
                 logger.log(Level.INFO, "Successfully loaded storage at " + storagePath);
             }
         }
-        return new DefinitionManagerResult(true, null, singleFileStorage);
+        return new ResultDTO<>(singleFileStorage);
     }
 
     /**

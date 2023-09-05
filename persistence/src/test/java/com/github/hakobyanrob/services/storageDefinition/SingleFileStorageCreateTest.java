@@ -1,6 +1,6 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.DefinitionManagerResult;
+import com.github.hakobyanrob.result.ResultDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,10 +16,10 @@ class SingleFileStorageCreateTest {
     @Test
     void testCreateSingleFileStorage_Success() {
         singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(testFilePath);
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
+        ResultDTO<File> resultDTO = singleFileStorageDefinitionManager.createStorage();
 
-        Assertions.assertTrue(storageCreationResult.isSuccessful());
-        Assertions.assertNull(storageCreationResult.getError());
+        Assertions.assertTrue(resultDTO.isSuccessful());
+        Assertions.assertNull(resultDTO.getErrorMessage());
     }
 
     @Test
@@ -29,9 +29,9 @@ class SingleFileStorageCreateTest {
         File file = new File(testFilePath);
         Assertions.assertTrue(file.createNewFile(), "Failed to create test file: " + testFilePath);
 
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
+        ResultDTO<File> resultDTO = singleFileStorageDefinitionManager.createStorage();
 
-        Assertions.assertTrue(storageCreationResult.isSuccessful());
+        Assertions.assertTrue(resultDTO.isSuccessful());
         Assertions.assertTrue(file.delete(), "Failed to delete test file: " + testFilePath);
     }
 
@@ -41,19 +41,20 @@ class SingleFileStorageCreateTest {
 
         singleFileStorageDefinitionManager.createStorage();
 
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
+        ResultDTO<File> resultDTO = singleFileStorageDefinitionManager.createStorage();
 
-        Assertions.assertTrue(storageCreationResult.isSuccessful());
+        Assertions.assertTrue(resultDTO.isSuccessful());
+        Assertions.assertNull(resultDTO.getErrorMessage());
     }
 
     @Test
     void testCreateSingleFileStorage_InvalidPath() {
         singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager("");
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
+        ResultDTO<File> storageCreationResult = singleFileStorageDefinitionManager.createStorage();
 
         Assertions.assertFalse(storageCreationResult.isSuccessful());
         String expectedErrorMessage = "The system cannot find the path specified";
-        Assertions.assertEquals(expectedErrorMessage, storageCreationResult.getError());
+        Assertions.assertEquals(expectedErrorMessage, storageCreationResult.getErrorMessage());
     }
 
     @AfterEach

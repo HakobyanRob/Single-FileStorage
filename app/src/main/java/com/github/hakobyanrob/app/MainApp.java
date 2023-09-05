@@ -1,6 +1,7 @@
 package com.github.hakobyanrob.app;
 
-import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.result.ResultDTO;
 import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
@@ -8,6 +9,8 @@ import com.github.hakobyanrob.services.storageManipulation.SingleFileStorageMani
 import com.github.hakobyanrob.services.storageManipulation.StorageManipulationManager;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -59,42 +62,59 @@ public class MainApp {
                     System.out.print("Enter file path: ");
                     String filePath = scanner.nextLine();
                     File fileToAdd = new File(filePath);
-                    ManipulationManagerResult addResult = manager.addFile(fileToAdd);
+                    ResultDTO<File> addResult = manager.addFile(fileToAdd);
                     if (addResult.isSuccessful()) {
                         System.out.println("Successfully added file");
                     } else {
-                        System.err.println(addResult.getError());
+                        System.err.println(addResult.getErrorMessage());
                     }
                 }
                 case 2 -> {
                     System.out.print("Enter file name: ");
                     String fileNameToGet = scanner.nextLine();
-                    ManipulationManagerResult getResult = manager.getFile(fileNameToGet);
+                    ResultDTO<byte[]> getResult = manager.getFile(fileNameToGet);
                     if (getResult.isSuccessful()) {
-                        System.out.println("Successfully got file");
+                        System.out.println("Successfully got file. " +
+                                "\nPlease specify a file path to save the results, or press Enter to save it to the original path:");
+                        String filePath = scanner.nextLine();
+
+                        if (filePath.isEmpty()) {
+                            filePath = fileNameToGet;
+                        }
+
+                        try {
+                            FileOutputStream fos = new FileOutputStream(filePath);
+
+                            fos.write(getResult.getDto());
+                            fos.close();
+
+                            System.out.println("File saved successfully at: " + filePath);
+                        } catch (IOException e) {
+                            System.err.println("Error saving file: " + e.getMessage());
+                        }
                     } else {
-                        System.err.println(getResult.getError());
+                        System.err.println(getResult.getErrorMessage());
                     }
                 }
                 case 3 -> {
                     System.out.print("Enter file path: ");
                     String filePathToUpdate = scanner.nextLine();
                     File fileToUpdate = new File(filePathToUpdate);
-                    ManipulationManagerResult updateResult = manager.updateFile(fileToUpdate);
+                    ResultDTO<File> updateResult = manager.updateFile(fileToUpdate);
                     if (updateResult.isSuccessful()) {
                         System.out.println("Successfully updated file");
                     } else {
-                        System.err.println(updateResult.getError());
+                        System.err.println(updateResult.getErrorMessage());
                     }
                 }
                 case 4 -> {
                     System.out.print("Enter file name: ");
                     String fileNameToDelete = scanner.nextLine();
-                    ManipulationManagerResult deleteResult = manager.deleteFile(fileNameToDelete);
+                    Result deleteResult = manager.deleteFile(fileNameToDelete);
                     if (deleteResult.isSuccessful()) {
                         System.out.println("Successfully deleted file");
                     } else {
-                        System.err.println(deleteResult.getError());
+                        System.err.println(deleteResult.getErrorMessage());
                     }
                 }
                 case 5 -> {

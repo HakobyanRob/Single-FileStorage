@@ -1,6 +1,6 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
-import com.github.hakobyanrob.result.DefinitionManagerResult;
+import com.github.hakobyanrob.result.ResultDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,15 +14,15 @@ public class SingleFileStorageGetTest {
     @Test
     void testCreateSingleFileStorage_Success() {
         singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(testFilePath);
-        DefinitionManagerResult storageCreationResult = singleFileStorageDefinitionManager.createStorage();
+        ResultDTO<File> storageCreationResult = singleFileStorageDefinitionManager.createStorage();
 
         Assertions.assertTrue(storageCreationResult.isSuccessful());
-        Assertions.assertNull(storageCreationResult.getError());
+        Assertions.assertNull(storageCreationResult.getErrorMessage());
 
-        DefinitionManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
+        ResultDTO<File> getResult = singleFileStorageDefinitionManager.getStorage();
         Assertions.assertTrue(getResult.isSuccessful());
-        Assertions.assertNull(getResult.getError());
-        Assertions.assertEquals(testFilePath, getResult.getStorage().getName());
+        Assertions.assertNull(getResult.getErrorMessage());
+        Assertions.assertEquals(testFilePath, getResult.getDto().getName());
 
         Assertions.assertTrue(singleFileStorageDefinitionManager.deleteStorage().isSuccessful());
     }
@@ -33,20 +33,20 @@ public class SingleFileStorageGetTest {
         Assertions.assertTrue(file.createNewFile());
 
 
-        DefinitionManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
+        ResultDTO<File> getResult = singleFileStorageDefinitionManager.getStorage();
 
         Assertions.assertTrue(getResult.isSuccessful());
-        Assertions.assertNull(getResult.getError());
-        Assertions.assertEquals(testFilePath, getResult.getStorage().getName());
+        Assertions.assertNull(getResult.getErrorMessage());
+        Assertions.assertEquals(testFilePath, getResult.getDto().getName());
 
         Assertions.assertTrue(singleFileStorageDefinitionManager.deleteStorage().isSuccessful());
     }
 
     @Test
     void testCreateSingleFileStorage_NonExistent() {
-        DefinitionManagerResult getResult = singleFileStorageDefinitionManager.getStorage();
+        ResultDTO<File> getResult = singleFileStorageDefinitionManager.getStorage();
         Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("Failed to load Storage", getResult.getError());
-        Assertions.assertNull(getResult.getStorage());
+        Assertions.assertEquals("Failed to load Storage", getResult.getErrorMessage());
+        Assertions.assertNull(getResult.getDto());
     }
 }

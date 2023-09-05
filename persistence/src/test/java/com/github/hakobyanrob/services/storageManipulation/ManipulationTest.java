@@ -1,94 +1,59 @@
 package com.github.hakobyanrob.services.storageManipulation;
 
-import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.result.ResultDTO;
 import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Arrays;
 
 public class ManipulationTest {
     protected static StoragePropertiesManager storagePropertiesManager;
     protected static StorageDefinitionManager singleFileStorageDefinitionManager;
     protected static StorageManipulationManager storageManipulationManager;
 
-    private static final int BUFFER_SIZE = 4096;
-
-    public static boolean compareFiles(File filePath1, File filePath2) throws IOException {
-        try (InputStream inputStream1 = new FileInputStream(filePath1);
-             InputStream inputStream2 = new FileInputStream(filePath2)
-        ) {
-            byte[] buffer1 = new byte[BUFFER_SIZE];
-            byte[] buffer2 = new byte[BUFFER_SIZE];
-            int bytesRead1 = inputStream1.read(buffer1);
-            int bytesRead2 = inputStream2.read(buffer2);
-
-            if (bytesRead1 != bytesRead2 || notEqualArrays(buffer1, buffer2, bytesRead1)) {
-                return false;
-            }
-            while (bytesRead1 != -1) {
-                bytesRead1 = inputStream1.read(buffer1);
-                bytesRead2 = inputStream2.read(buffer2);
-
-                if (bytesRead1 != bytesRead2 || notEqualArrays(buffer1, buffer2, bytesRead1)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    private static boolean notEqualArrays(byte[] arr1, byte[] arr2, int length) {
-        for (int i = 0; i < length; i++) {
-            if (arr1[i] != arr2[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     protected void assertAdd(File testFile) {
-        ManipulationManagerResult addResult = storageManipulationManager.addFile(testFile);
+        ResultDTO<File> addResult = storageManipulationManager.addFile(testFile);
         Assertions.assertTrue(addResult.isSuccessful());
-        Assertions.assertNull(addResult.getError());
-        Assertions.assertEquals(testFile, addResult.getFile());
+        Assertions.assertNull(addResult.getErrorMessage());
+        Assertions.assertEquals(testFile, addResult.getDto());
     }
 
     protected void assertFileExists(File testFile) throws IOException {
-        ManipulationManagerResult getResult = storageManipulationManager.getFile(testFile.getName());
+        ResultDTO<byte[]> getResult = storageManipulationManager.getFile(testFile.getName());
         Assertions.assertTrue(getResult.isSuccessful());
-        Assertions.assertNotNull(getResult.file());
-        Assertions.assertTrue(compareFiles(testFile, getResult.file()));
+        Assertions.assertNotNull(getResult.getDto());
+        Assertions.assertArrayEquals(Files.readAllBytes(testFile.toPath()), getResult.getDto());
     }
 
     protected void assertFileExistsWithDifferentContent(File testFile) throws IOException {
-        ManipulationManagerResult getResult = storageManipulationManager.getFile(testFile.getName());
+        ResultDTO<byte[]> getResult = storageManipulationManager.getFile(testFile.getName());
         Assertions.assertTrue(getResult.isSuccessful());
-        Assertions.assertNotNull(getResult.file());
-        Assertions.assertFalse(compareFiles(testFile, getResult.file()));
+        Assertions.assertNotNull(getResult.getDto());
+        Assertions.assertFalse(Arrays.equals(Files.readAllBytes(testFile.toPath()), getResult.getDto()));
     }
 
     protected void assertUpdate(File testFile) {
-        ManipulationManagerResult updateResult = storageManipulationManager.updateFile(testFile);
+        ResultDTO<File> updateResult = storageManipulationManager.updateFile(testFile);
         Assertions.assertTrue(updateResult.isSuccessful());
-        Assertions.assertNull(updateResult.getError());
-        Assertions.assertEquals(testFile, updateResult.getFile());
+        Assertions.assertNull(updateResult.getErrorMessage());
+        Assertions.assertEquals(testFile, updateResult.getDto());
     }
 
     protected void assertDelete(File testFile) {
-        ManipulationManagerResult deleteResult = storageManipulationManager.deleteFile(testFile.getName());
+        Result deleteResult = storageManipulationManager.deleteFile(testFile.getName());
         Assertions.assertTrue(deleteResult.isSuccessful());
-        Assertions.assertNull(deleteResult.getError());
-        Assertions.assertNull(deleteResult.getFile());
+        Assertions.assertNull(deleteResult.getErrorMessage());
     }
 
     protected void assertFileNotExists(File testFile) {
-        ManipulationManagerResult getResult = storageManipulationManager.getFile(testFile.getName());
+        ResultDTO<byte[]> getResult = storageManipulationManager.getFile(testFile.getName());
         Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("File not found: " + testFile.getName(), getResult.getError());
-        Assertions.assertNull(getResult.file());
+        Assertions.assertEquals("File not found: " + testFile.getName(), getResult.getErrorMessage());
+        Assertions.assertNull(getResult.getDto());
     }
 }

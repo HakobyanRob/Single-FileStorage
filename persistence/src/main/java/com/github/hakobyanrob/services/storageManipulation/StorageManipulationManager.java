@@ -1,16 +1,18 @@
 package com.github.hakobyanrob.services.storageManipulation;
 
-import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.result.ResultDTO;
 
 import java.io.File;
+import java.io.InputStream;
 
 public interface StorageManipulationManager {
 
-    ManipulationManagerResult addFile(File file);
+    ResultDTO<File> addFile(File file);
 
-    ManipulationManagerResult getFile(String fileName);
+    ResultDTO<byte[]> getFile(String fileName);
 
-    ManipulationManagerResult updateFile(File file);
+    ResultDTO<File> updateFile(File file);
 
-    ManipulationManagerResult deleteFile(String fileName);
+    Result deleteFile(String fileName);
 }

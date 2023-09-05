@@ -1,6 +1,7 @@
 package com.github.hakobyanrob.services.storageManipulation;
 
-import com.github.hakobyanrob.result.ManipulationManagerResult;
+import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.result.ResultDTO;
 import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import org.junit.jupiter.api.AfterAll;
@@ -31,83 +32,84 @@ public class SingleFileStorageManipulationTestNegative extends ManipulationTest 
     @ParameterizedTest
     @ValueSource(strings = {emptyFile, spaceFile, nonExistentFile})
     void saveFileNegative(String filePath) {
-        ManipulationManagerResult addResult = storageManipulationManager.addFile(new File(filePath));
-        Assertions.assertFalse(addResult.isSuccessful());
-        Assertions.assertEquals("Invalid file provided", addResult.getError());
+        ResultDTO<File> resultDTO = storageManipulationManager.addFile(new File(filePath));
+        Assertions.assertFalse(resultDTO.isSuccessful());
+        Assertions.assertEquals("Invalid file provided", resultDTO.getErrorMessage());
+        Assertions.assertNull(resultDTO.getDto());
     }
 
     @Test
     void saveNullFile() {
-        ManipulationManagerResult addResult = storageManipulationManager.addFile(null);
-        Assertions.assertFalse(addResult.isSuccessful());
-        Assertions.assertEquals("Invalid file provided", addResult.getError());
+        ResultDTO<File> resultDto = storageManipulationManager.addFile(null);
+        Assertions.assertFalse(resultDto.isSuccessful());
+        Assertions.assertEquals("Invalid file provided", resultDto.getErrorMessage());
+        Assertions.assertNull(resultDto.getDto());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {emptyFile, spaceFile})
     void getEmptyFileName(String fileName) {
-        ManipulationManagerResult getResult = storageManipulationManager.getFile(fileName);
-        Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("Invalid file name provided", getResult.getError());
-        Assertions.assertNull(getResult.getFile());
+        ResultDTO<byte[]> resultDTO = storageManipulationManager.getFile(fileName);
+        Assertions.assertFalse(resultDTO.isSuccessful());
+        Assertions.assertEquals("Invalid file name provided", resultDTO.getErrorMessage());
+        Assertions.assertNull(resultDTO.getDto());
     }
 
     @Test
     void getNullFileName() {
-        ManipulationManagerResult getResult = storageManipulationManager.getFile(null);
-        Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("Invalid file name provided", getResult.getError());
-        Assertions.assertNull(getResult.getFile());
+        ResultDTO<byte[]> resultDTO = storageManipulationManager.getFile(null);
+        Assertions.assertFalse(resultDTO.isSuccessful());
+        Assertions.assertEquals("Invalid file name provided", resultDTO.getErrorMessage());
+        Assertions.assertNull(resultDTO.getDto());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {nonExistentFile})
     void getNonExistentFileName(String fileName) {
-        ManipulationManagerResult getResult = storageManipulationManager.getFile(fileName);
-        Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("File not found: " + fileName, getResult.getError());
-        Assertions.assertNull(getResult.getFile());
+        ResultDTO<byte[]> resultDTO = storageManipulationManager.getFile(fileName);
+        Assertions.assertFalse(resultDTO.isSuccessful());
+        Assertions.assertEquals("File not found: " + fileName, resultDTO.getErrorMessage());
+        Assertions.assertNull(resultDTO.getDto());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {emptyFile, spaceFile, nonExistentFile})
     void updateEmptyFile(String filePath) {
-        ManipulationManagerResult addResult = storageManipulationManager.updateFile(new File(filePath));
-        Assertions.assertFalse(addResult.isSuccessful());
-        Assertions.assertEquals("Invalid file provided", addResult.getError());
+        ResultDTO<File> resultDTO = storageManipulationManager.updateFile(new File(filePath));
+        Assertions.assertFalse(resultDTO.isSuccessful());
+        Assertions.assertEquals("Invalid file provided", resultDTO.getErrorMessage());
+        Assertions.assertNull(resultDTO.getDto());
     }
 
     @Test
     void updateNullFile() {
-        ManipulationManagerResult addResult = storageManipulationManager.updateFile(null);
-        Assertions.assertFalse(addResult.isSuccessful());
-        Assertions.assertEquals("Invalid file provided", addResult.getError());
+        ResultDTO<File> resultDTO = storageManipulationManager.updateFile(null);
+        Assertions.assertFalse(resultDTO.isSuccessful());
+        Assertions.assertEquals("Invalid file provided", resultDTO.getErrorMessage());
+        Assertions.assertNull(resultDTO.getDto());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {emptyFile, spaceFile})
     void deleteEmptyFileName(String fileName) {
-        ManipulationManagerResult getResult = storageManipulationManager.deleteFile(fileName);
-        Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("Invalid file name provided", getResult.getError());
-        Assertions.assertNull(getResult.getFile());
+        Result result = storageManipulationManager.deleteFile(fileName);
+        Assertions.assertFalse(result.isSuccessful());
+        Assertions.assertEquals("Invalid file name provided", result.getErrorMessage());
     }
 
     @Test
     void deleteNullFileName() {
-        ManipulationManagerResult getResult = storageManipulationManager.deleteFile(null);
-        Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("Invalid file name provided", getResult.getError());
-        Assertions.assertNull(getResult.getFile());
+        Result result = storageManipulationManager.deleteFile(null);
+        Assertions.assertFalse(result.isSuccessful());
+        Assertions.assertEquals("Invalid file name provided", result.getErrorMessage());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {nonExistentFile})
     void deleteNonExistentFileName(String fileName) {
-        ManipulationManagerResult getResult = storageManipulationManager.deleteFile(fileName);
-        Assertions.assertFalse(getResult.isSuccessful());
-        Assertions.assertEquals("File not found: " + fileName, getResult.getError());
-        Assertions.assertNull(getResult.getFile());
+        Result result = storageManipulationManager.deleteFile(fileName);
+        Assertions.assertFalse(result.isSuccessful());
+        Assertions.assertEquals("File not found: " + fileName, result.getErrorMessage());
     }
 
     @AfterAll
