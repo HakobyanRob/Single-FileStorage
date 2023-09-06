@@ -5,6 +5,9 @@ import com.github.hakobyanrob.result.ResultDTO;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,6 +50,8 @@ public class SingleFileStorageDefinitionManager implements StorageDefinitionMana
         }
 
         try {
+            Path path = Paths.get(storagePath);
+            Files.createDirectories(path.getParent());
             if (!file.createNewFile()) {
                 String message = "Failed to create the file storage at path: " + storagePath;
                 logger.log(Level.SEVERE, message);

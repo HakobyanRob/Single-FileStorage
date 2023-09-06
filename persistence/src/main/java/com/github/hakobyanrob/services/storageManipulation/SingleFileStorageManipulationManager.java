@@ -2,6 +2,7 @@ package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.Result;
 import com.github.hakobyanrob.result.ResultDTO;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 
 import java.io.BufferedReader;
@@ -24,13 +25,17 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
     private static final Logger logger = Logger.getLogger(SingleFileStorageManipulationManager.class.getName());
 
     private final StorageDefinitionManager storageDefinitionManager;
+    private final StoragePropertiesManager storagePropertiesManager;
+
     private static final String DELIMITER = "|";
 
     private final Lock readLock;
     private final Lock writeLock;
 
-    public SingleFileStorageManipulationManager(StorageDefinitionManager storageDefinitionManager) {
+    public SingleFileStorageManipulationManager(StorageDefinitionManager storageDefinitionManager,
+                                                StoragePropertiesManager storagePropertiesManager) {
         this.storageDefinitionManager = storageDefinitionManager;
+        this.storagePropertiesManager = storagePropertiesManager;
         ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
         readLock = rwLock.readLock();
         writeLock = rwLock.writeLock();
@@ -205,9 +210,7 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
 
     private Result deleteFile(File storage, String targetFileName) throws IOException {
-        Files.createDirectories(Paths.get("temp"));
-        File tempFile = new File("temp/temp.txt");
-        tempFile.deleteOnExit();
+        File tempFile = createFileWithParentDirectories(storagePropertiesManager.getTempPath());
         boolean deletedFile = false;
         try (BufferedReader reader = new BufferedReader(new FileReader(storage));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
@@ -236,22 +239,35 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
         Result result;
         if (deletedFile) {
-            File backup = new File("temp/backup.txt");
-            backup.deleteOnExit();
-            Files.copy(storage.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-            if (storage.delete() && tempFile.renameTo(storage)) {
-                logger.log(Level.INFO, "Content removed successfully.");
-                result = new Result();
-            } else {
-                logger.log(Level.WARNING, "Failed to remove content.");
-                logger.log(Level.WARNING, "Reverting to back-up.");
-                Files.copy(backup.toPath(), storage.toPath());
-                result = new Result("Failed to remove content.");
-            }
+            result = replaceStorageWithBackup(storage, tempFile);
         } else {
             result = new Result("File not found: " + targetFileName);
         }
         return result;
+    }
+
+    private Result replaceStorageWithBackup(File storage, File tempFile) throws IOException {
+        Result result;
+        File backupFile = createFileWithParentDirectories(storagePropertiesManager.getBackupPath());
+        Files.copy(storage.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        if (storage.delete() && tempFile.renameTo(storage)) {
+            logger.log(Level.INFO, "Content removed successfully.");
+            result = new Result();
+        } else {
+            logger.log(Level.WARNING, "Failed to remove content.");
+            logger.log(Level.WARNING, "Reverting to back-up.");
+            Files.copy(backupFile.toPath(), storage.toPath());
+            result = new Result("Failed to remove content.");
+        }
+        return result;
+    }
+
+    private File createFileWithParentDirectories(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        Files.createDirectories(path.getParent());
+        File file = path.toFile();
+        file.deleteOnExit();
+        return file;
     }
 }

@@ -12,7 +12,13 @@ public class StoragePropertiesManager {
     private final String storagePropertiesPath;
 
     private static final String storagePathKey = "storagePath";
-    private String storagePath = "storage.txt";
+    private String storagePath;
+
+    private static final String tempPathKey = "tempFile";
+    private String tempPath;
+
+    private static final String backupPathKey = "backupFile";
+    private String backupPath;
 
 
     public StoragePropertiesManager(String storagePropertiesPath) {
@@ -23,17 +29,31 @@ public class StoragePropertiesManager {
     private void initializeProperties() {
         Properties prop = new Properties();
         String defaultStoragePath = "storage.txt";
+        String defaultTempPath = "temp/temp.txt";
+        String defaultBackupPath = "temp/backup.txt";
         try (FileInputStream inputStream = new FileInputStream(storagePropertiesPath)) {
             prop.load(inputStream);
             storagePath = prop.getProperty(storagePathKey, defaultStoragePath);
+            tempPath = prop.getProperty(tempPathKey, defaultTempPath);
+            backupPath = prop.getProperty(backupPathKey, defaultBackupPath);
         } catch (IOException | NumberFormatException e) {
             logger.log(Level.WARNING, "Failed to read storage properties from file "
                     + storagePropertiesPath + ". Default values will be set", e);
             storagePath = defaultStoragePath;
+            tempPath = defaultTempPath;
+            backupPath = defaultBackupPath;
         }
     }
 
     public String getStoragePath() {
         return storagePath;
+    }
+
+    public String getTempPath() {
+        return tempPath;
+    }
+
+    public String getBackupPath() {
+        return backupPath;
     }
 }

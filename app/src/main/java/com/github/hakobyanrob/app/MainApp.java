@@ -32,7 +32,7 @@ public class MainApp {
             System.exit(0);
         }
 
-        return new SingleFileStorageManipulationManager(storageDefinitionManager);
+        return new SingleFileStorageManipulationManager(storageDefinitionManager, storagePropertiesManager);
     }
 
     private static void userInputHandler(StorageManipulationManager manager) {

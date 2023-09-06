@@ -2,11 +2,8 @@ package com.github.hakobyanrob.services.storageManipulation;
 
 import com.github.hakobyanrob.result.Result;
 import com.github.hakobyanrob.result.ResultDTO;
-import com.github.hakobyanrob.services.common.StoragePropertiesManager;
-import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -14,17 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.File;
 
 public class SingleFileStorageManipulationTestNegative extends ManipulationTest {
-
-    private final static String resourceFilePath = "src/test/resources/storageManipulation/";
-
-    @BeforeAll
-    static void createStorage() {
-        storagePropertiesManager = new StoragePropertiesManager(resourceFilePath + "testStorage.properties");
-        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(resourceFilePath + storagePropertiesManager.getStoragePath());
-        storageManipulationManager = new SingleFileStorageManipulationManager(singleFileStorageDefinitionManager);
-        singleFileStorageDefinitionManager.createStorage();
-    }
-
     private final String emptyFile = "";
     private final String spaceFile = "   ";
     private final String nonExistentFile = "notExistingFile";

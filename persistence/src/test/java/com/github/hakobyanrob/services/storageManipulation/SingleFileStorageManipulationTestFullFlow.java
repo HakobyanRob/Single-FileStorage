@@ -1,10 +1,7 @@
 package com.github.hakobyanrob.services.storageManipulation;
 
-import com.github.hakobyanrob.services.common.StoragePropertiesManager;
-import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -17,16 +14,7 @@ import java.io.IOException;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SingleFileStorageManipulationTestFullFlow extends ManipulationTest {
 
-    private final static String resourceFilePath = "src/test/resources/storageManipulation/";
     private final static String updatedFilePath = "toUpdate/";
-
-    @BeforeAll
-    static void createStorage() {
-        storagePropertiesManager = new StoragePropertiesManager(resourceFilePath + "testStorage.properties");
-        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(resourceFilePath + storagePropertiesManager.getStoragePath());
-        storageManipulationManager = new SingleFileStorageManipulationManager(singleFileStorageDefinitionManager);
-        singleFileStorageDefinitionManager.createStorage();
-    }
 
     private final String txtTestFile = "text.txt";
     private final String pngTestFile = "json.json";

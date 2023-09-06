@@ -3,8 +3,10 @@ package com.github.hakobyanrob.services.storageManipulation;
 import com.github.hakobyanrob.result.Result;
 import com.github.hakobyanrob.result.ResultDTO;
 import com.github.hakobyanrob.services.common.StoragePropertiesManager;
+import com.github.hakobyanrob.services.storageDefinition.SingleFileStorageDefinitionManager;
 import com.github.hakobyanrob.services.storageDefinition.StorageDefinitionManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,16 @@ public class ManipulationTest {
     protected static StoragePropertiesManager storagePropertiesManager;
     protected static StorageDefinitionManager singleFileStorageDefinitionManager;
     protected static StorageManipulationManager storageManipulationManager;
+
+    protected final static String resourceFilePath = "src/test/resources/storageManipulation/";
+
+    @BeforeAll
+    static void createStorage() {
+        storagePropertiesManager = new StoragePropertiesManager(resourceFilePath + "testStorage.properties");
+        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(resourceFilePath + storagePropertiesManager.getStoragePath());
+        storageManipulationManager = new SingleFileStorageManipulationManager(singleFileStorageDefinitionManager, storagePropertiesManager);
+        singleFileStorageDefinitionManager.createStorage();
+    }
 
     protected void assertAdd(File testFile) {
         ResultDTO<File> addResult = storageManipulationManager.addFile(testFile);
