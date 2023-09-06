@@ -265,7 +265,9 @@ public class SingleFileStorageManipulationManager implements StorageManipulation
 
     private File createFileWithParentDirectories(String filePath) throws IOException {
         Path path = Paths.get(filePath);
-        Files.createDirectories(path.getParent());
+        if (path.getParent() != null) {
+            Files.createDirectories(path.getParent());
+        }
         File file = path.toFile();
         file.deleteOnExit();
         return file;

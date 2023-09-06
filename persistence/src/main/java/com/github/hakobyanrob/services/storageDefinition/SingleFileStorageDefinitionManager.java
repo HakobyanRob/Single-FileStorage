@@ -51,7 +51,9 @@ public class SingleFileStorageDefinitionManager implements StorageDefinitionMana
 
         try {
             Path path = Paths.get(storagePath);
-            Files.createDirectories(path.getParent());
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
             if (!file.createNewFile()) {
                 String message = "Failed to create the file storage at path: " + storagePath;
                 logger.log(Level.SEVERE, message);

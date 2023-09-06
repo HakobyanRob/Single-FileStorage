@@ -11,6 +11,8 @@ public class StoragePropertiesManagerTest {
         storagePropertiesManager = new StoragePropertiesManager("src/test/resources/common/testStorage.properties");
 
         Assertions.assertEquals("teststorage.txt", storagePropertiesManager.getStoragePath());
+        Assertions.assertEquals("testTemp.txt", storagePropertiesManager.getTempPath());
+        Assertions.assertEquals("testBackup.txt", storagePropertiesManager.getBackupPath());
     }
 
     @Test
@@ -18,6 +20,8 @@ public class StoragePropertiesManagerTest {
         storagePropertiesManager = new StoragePropertiesManager("src/test/resources/common/empty.properties");
 
         Assertions.assertEquals("storage.txt", storagePropertiesManager.getStoragePath());
+        Assertions.assertEquals("temp/temp.txt", storagePropertiesManager.getTempPath());
+        Assertions.assertEquals("temp/backup.txt", storagePropertiesManager.getBackupPath());
     }
 
     @Test
@@ -25,5 +29,7 @@ public class StoragePropertiesManagerTest {
         storagePropertiesManager = new StoragePropertiesManager("src/test/resources/common/fake.dummy");
 
         Assertions.assertEquals("storage.txt", storagePropertiesManager.getStoragePath());
+        Assertions.assertEquals("temp/temp.txt", storagePropertiesManager.getTempPath());
+        Assertions.assertEquals("temp/backup.txt", storagePropertiesManager.getBackupPath());
     }
 }
