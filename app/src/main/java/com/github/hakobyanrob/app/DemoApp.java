@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class MainApp {
+public class DemoApp {
 
     public static void main(String[] args) {
         StorageManipulationManager manager = init(args);
@@ -26,7 +26,7 @@ public class MainApp {
         String storagePropertiesPath = args.length > 0 ? args[0] : defaultStoragePropertiesPath;
 
         StoragePropertiesManager storagePropertiesManager = new StoragePropertiesManager(storagePropertiesPath);
-        StorageDefinitionManager storageDefinitionManager = new SingleFileStorageDefinitionManager(storagePropertiesManager.getStoragePath());
+        StorageDefinitionManager storageDefinitionManager = new SingleFileStorageDefinitionManager(storagePropertiesManager);
         if (!storageDefinitionManager.createStorage().isSuccessful()) {
             System.err.println("Failed to create Storage...");
             System.exit(0);

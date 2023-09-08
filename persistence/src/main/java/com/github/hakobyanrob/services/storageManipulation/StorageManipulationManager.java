@@ -4,7 +4,6 @@ import com.github.hakobyanrob.result.Result;
 import com.github.hakobyanrob.result.ResultDTO;
 
 import java.io.File;
-import java.io.InputStream;
 
 public interface StorageManipulationManager {
 

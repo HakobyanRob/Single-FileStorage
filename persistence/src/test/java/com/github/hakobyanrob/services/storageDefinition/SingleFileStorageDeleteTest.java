@@ -1,12 +1,22 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
 import com.github.hakobyanrob.result.Result;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class SingleFileStorageDeleteTest {
-    private final StorageDefinitionManager singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager("testFilePath");
+
+    private static StorageDefinitionManager singleFileStorageDefinitionManager;
+
+    @BeforeAll
+    static void createStorage() {
+        String storagePropertiesPath = "src/test/resources/storageDefinition/testStorage.properties";
+        StoragePropertiesManager propertiesManager = new StoragePropertiesManager(storagePropertiesPath);
+        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(propertiesManager);
+    }
 
     @Test
     void testDeleteSingleFileStorage_Success() {

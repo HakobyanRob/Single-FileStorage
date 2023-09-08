@@ -2,6 +2,7 @@ package com.github.hakobyanrob.services.storageDefinition;
 
 import com.github.hakobyanrob.result.Result;
 import com.github.hakobyanrob.result.ResultDTO;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +25,8 @@ public class SingleFileStorageDefinitionManager implements StorageDefinitionMana
 
     private final String storagePath;
 
-    public SingleFileStorageDefinitionManager(String storagePath) {
-        this.storagePath = storagePath;
+    public SingleFileStorageDefinitionManager(StoragePropertiesManager storagePropertiesManager) {
+        storagePath = storagePropertiesManager.getStoragePath();
     }
 
     /**

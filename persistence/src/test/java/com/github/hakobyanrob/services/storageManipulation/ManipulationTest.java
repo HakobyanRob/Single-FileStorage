@@ -23,7 +23,7 @@ public class ManipulationTest {
     @BeforeAll
     static void createStorage() {
         storagePropertiesManager = new StoragePropertiesManager(resourceFilePath + "testStorage.properties");
-        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(resourceFilePath + storagePropertiesManager.getStoragePath());
+        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(storagePropertiesManager);
         storageManipulationManager = new SingleFileStorageManipulationManager(singleFileStorageDefinitionManager, storagePropertiesManager);
         singleFileStorageDefinitionManager.createStorage();
     }

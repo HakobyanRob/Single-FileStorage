@@ -1,19 +1,27 @@
 package com.github.hakobyanrob.services.storageDefinition;
 
 import com.github.hakobyanrob.result.ResultDTO;
+import com.github.hakobyanrob.services.common.StoragePropertiesManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
 public class SingleFileStorageGetTest {
-    private final String testFilePath = "testFilePath";
-    private StorageDefinitionManager singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(testFilePath);
+    private static StorageDefinitionManager singleFileStorageDefinitionManager;
+    private static StoragePropertiesManager propertiesManager;
+
+    @BeforeAll
+    static void createStorage() {
+        String storagePropertiesPath = "src/test/resources/storageDefinition/testStorage.properties";
+        propertiesManager = new StoragePropertiesManager(storagePropertiesPath);
+        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(propertiesManager);
+    }
 
     @Test
     void testCreateSingleFileStorage_Success() {
-        singleFileStorageDefinitionManager = new SingleFileStorageDefinitionManager(testFilePath);
         ResultDTO<File> storageCreationResult = singleFileStorageDefinitionManager.createStorage();
 
         Assertions.assertTrue(storageCreationResult.isSuccessful());
@@ -22,14 +30,14 @@ public class SingleFileStorageGetTest {
         ResultDTO<File> getResult = singleFileStorageDefinitionManager.getStorage();
         Assertions.assertTrue(getResult.isSuccessful());
         Assertions.assertNull(getResult.getErrorMessage());
-        Assertions.assertEquals(testFilePath, getResult.getDto().getName());
+        Assertions.assertEquals(propertiesManager.getStoragePath(), getResult.getDto().getName());
 
         Assertions.assertTrue(singleFileStorageDefinitionManager.deleteStorage().isSuccessful());
     }
 
     @Test
     void testCreateSingleFileStorage_LoadStorage() throws IOException {
-        File file = new File(testFilePath);
+        File file = new File(propertiesManager.getStoragePath());
         Assertions.assertTrue(file.createNewFile());
 
 
@@ -37,7 +45,7 @@ public class SingleFileStorageGetTest {
 
         Assertions.assertTrue(getResult.isSuccessful());
         Assertions.assertNull(getResult.getErrorMessage());
-        Assertions.assertEquals(testFilePath, getResult.getDto().getName());
+        Assertions.assertEquals(propertiesManager.getStoragePath(), getResult.getDto().getName());
 
         Assertions.assertTrue(singleFileStorageDefinitionManager.deleteStorage().isSuccessful());
     }

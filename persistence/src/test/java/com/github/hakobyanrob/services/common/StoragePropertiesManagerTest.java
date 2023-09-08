@@ -10,7 +10,7 @@ public class StoragePropertiesManagerTest {
     public void loadStoragePath() {
         storagePropertiesManager = new StoragePropertiesManager("src/test/resources/common/testStorage.properties");
 
-        Assertions.assertEquals("teststorage.txt", storagePropertiesManager.getStoragePath());
+        Assertions.assertEquals("testStorage.txt", storagePropertiesManager.getStoragePath());
         Assertions.assertEquals("testTemp.txt", storagePropertiesManager.getTempPath());
         Assertions.assertEquals("testBackup.txt", storagePropertiesManager.getBackupPath());
     }

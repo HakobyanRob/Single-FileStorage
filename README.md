@@ -30,33 +30,87 @@ Before you can run the Single-File Storage Management System, make sure you have
    mvn clean install
    ```
 
-4. Run the application:
+# Usage
 
-   ```
-   java -jar ./app/target/app-1.0-SNAPSHOT.jar
-   ```
+The `StorageDefinitionManager` and `StorageManipulationManager` interfaces provide a set of methods for managing file storage and performing file operations. Here's a summary of the public methods and their return values:
 
-## Usage
+## StorageDefinitionManager Interface
 
-1. When you run the application, you will be presented with a menu of options:
+### `ResultDTO<File> createStorage()`
 
-   ```
-   Select an option:
-   1. Add File
-   2. Get File
-   3. Update File
-   4. Delete File
-   5. Exit
-   Enter your choice:
-   ```
+- Description: Creates a new storage at the file path provided by StoragePropertiesManager
+- Return Value: A `ResultDTO` containing the created storage file if successful, or an error message if the operation fails.
 
-2. Choose an option by entering the corresponding number:
+### `Result deleteStorage()`
 
-   - **Add File**: You can add a file to the storage system by providing the file's path.
-   - **Get File**: Retrieve a file from the storage system by providing its name.
-   - **Update File**: Update an existing file in the storage system by providing the file's path.
-   - **Delete File**: Delete a file from the storage system by providing its name.
-   - **Exit**: Exit the application.
-   
+- Description: Deletes the storage.
+- Return Value: A `Result` indicating the result of the deletion operation. A successful deletion will have no error message.
 
-For more details visit the documentation page.
+### `ResultDTO<File> getStorage()`
+
+- Description: Retrieves the storage.
+- Return Value: A `ResultDTO` containing the retrieved storage file if successful, or an error message if the operation fails.
+
+## StorageManipulationManager Interface
+
+### `ResultDTO<File> addFile(File file)`
+
+- Description: Adds a file to the storage.
+- Parameters:
+   - `file` (Type: `File`) - The file to be added.
+- Return Value: A `ResultDTO` containing the added file if successful, or an error message if the operation fails.
+
+### `ResultDTO<byte[]> getFile(String fileName)`
+
+- Description: Retrieves a file from the storage based on its name.
+- Parameters:
+   - `fileName` (Type: `String`) - The name of the file to retrieve.
+- Return Value: A `ResultDTO` containing the file's content as a byte array if successful, or an error message if the operation fails.
+
+### `ResultDTO<File> updateFile(File file)`
+
+- Description: Updates an existing file in the storage.
+- Parameters:
+   - `file` (Type: `File`) - The updated file.
+- Return Value: A `ResultDTO` containing the updated file if successful, or an error message if the operation fails.
+
+### `Result deleteFile(String fileName)`
+
+- Description: Deletes a file from the storage based on its name.
+- Parameters:
+   - `fileName` (Type: `String`) - The name of the file to delete.
+- Return Value: A `Result` indicating the result of the deletion operation. A successful deletion will have no error message.
+
+These interfaces and methods provide a structured way to interact with storage and files, allowing you to manage and manipulate files in your application while handling errors and success scenarios gracefully.
+
+## StoragePropertiesManager Class
+
+The `StoragePropertiesManager` class is responsible for managing storage-related properties, such as storage paths and file locations. It reads these properties from a configuration file, providing defaults if the file is missing or malformed.
+
+### Constructor
+
+#### `StoragePropertiesManager(String storagePropertiesPath)`
+
+- Initializes the `StoragePropertiesManager` with the path to the storage properties configuration file.
+
+    - `storagePropertiesPath`: The path to the configuration file.
+
+### Public Methods
+
+#### `String getStoragePath()`
+
+- If the storage path is missing in the configuration file or if the file is not provided, the default storage path `"storage.txt"` will be used.
+
+#### `String getTempPath()`
+
+- If the temporary file path is missing in the configuration file or if the file is not provided, the default temporary file path `"temp/temp.txt"` will be used.
+
+#### `String getBackupPath()`
+
+- If the backup file path is missing in the configuration file or if the file is not provided, the default backup file path `"temp/backup.txt"` will be used.
+
+By using default values in these cases, the `StoragePropertiesManager` class ensures that the application can continue to operate even when specific configuration details are not available or incomplete.
+
+___
+
+For more details about the implementation visit the documentation page.

@@ -40,7 +40,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.github.hakobyanrob.app.MainApp</mainClass>
+                                    <mainClass>com.github.hakobyanrob.app.DemoApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
